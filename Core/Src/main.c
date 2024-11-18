@@ -17,12 +17,15 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <stdbool.h>
+#include "main.h"
+#include "app.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,13 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TEST_NUMBER TEST_1
 
-#define SAMPLES_COUNTER 100
-#define AVERAGER_SIZE 8
-#define TEST_1 1
-#define TEST_2 2
-#define TEST_3 3
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -51,12 +48,6 @@ ADC_HandleTypeDef hadc1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
-#if TEST_3==TEST_NUMBER
-uint16_t sample_idx;
-uint16_t sample_array[SAMPLES_COUNTER];
-bool b_trig_new_conversion;
-#endif
 
 /* USER CODE END PV */
 
@@ -72,17 +63,6 @@ static void MX_ADC1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 extern void initialise_monitor_handles(void);
-
-#if TEST_3==TEST_NUMBER
-// Over-riden ISR callback
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
-
-	sample_array[sample_idx++] = HAL_ADC_GetValue(&hadc1);
-	if (sample_idx<SAMPLES_COUNTER) {
-		b_trig_new_conversion = true;
-	}
-}
-#endif
 
 /* USER CODE END 0 */
 
@@ -118,75 +98,14 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
+  app_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-      uint32_t tickstart;
-
-      printf ("Test #%u starts\n", TEST_NUMBER);
-      tickstart = HAL_GetTick();
-
-#if TEST_1==TEST_NUMBER
-      uint16_t sample;
-      for (sample=0;sample<SAMPLES_COUNTER;sample++) {
-
-  	    //Activate the ADC peripheral and start conversions
-	  	if ( HAL_OK==HAL_ADC_Start(&hadc1) ) {
-	  		//	Check if ADC conversion completion, without locking (Timeout=0)
-	  		if ( HAL_OK==HAL_ADC_PollForConversion(&hadc1, 0) ) {
-
-	  			uint16_t value = HAL_ADC_GetValue(&hadc1);
-	  			printf("%u\n", value);
-	  		}
-	  	}
-	  }
-#endif
-
-#if TEST_2==TEST_NUMBER
-      uint16_t sample;
-      for (sample=0;sample<SAMPLES_COUNTER;sample++) {
-        uint32_t averaged = 0;
-        for (uint16_t averager=0 ; averager<AVERAGER_SIZE ; averager++) {
-  	      //Activate the ADC peripheral and start conversions
-	  	  if ( HAL_OK==HAL_ADC_Start(&hadc1) ) {
-	  		//	Check if ADC conversion completion, without locking (Timeout=0)
-	  		if ( HAL_OK==HAL_ADC_PollForConversion(&hadc1, 0) ) {
-	  			averaged += HAL_ADC_GetValue(&hadc1);
-	  		}
-	  	  }
-	  	}
-        averaged = averaged / AVERAGER_SIZE;
-        printf("%lu\n", averaged);
-	  }
-#endif
-
-#if TEST_3==TEST_NUMBER
-
-      b_trig_new_conversion = true;
-      sample_idx = 0;
-      while (sample_idx<SAMPLES_COUNTER) {
-        if (b_trig_new_conversion) {
-    	  b_trig_new_conversion = false;
-    	  HAL_ADC_Start_IT(&hadc1);
-    	}
-      }
-
-      uint16_t sample;
-      for (sample=0;sample<SAMPLES_COUNTER;sample++) {
-  	    printf("%u\n",sample_array[sample] );
-      }
-#endif
-
-
-      printf ("Test #%u ends. Ticks: %lu\n", TEST_NUMBER, HAL_GetTick()-tickstart);
-	  while (1) {
-		  ;
-	  }
+	  app_update();
 
     /* USER CODE END WHILE */
 
@@ -359,10 +278,7 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
-#if TEST_3==TEST_NUMBER
-  HAL_NVIC_SetPriority(ADC1_2_IRQn, 2, 0);
-  HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
-#endif
+
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
