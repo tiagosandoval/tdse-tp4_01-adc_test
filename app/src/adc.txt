@@ -1,0 +1,25 @@
+Hay 3 configuraciones distintas para la lectura de valor del potenciometro.
+
+- ADC_Poll_Read()
+Pide por el comienzo de la conversion al valor digital y espera hasta que 
+dicha conversion este completa. Devuelve un tipo de dato estructura HAL.
+
+
+TEST 1
+Si el valor que devuelve ADC_Poll_Read coincide con HAL_OK, se muestra por pantalla
+el valor leido (previamente configurado en main.c con ADC_HandleTypeDef hadc1). Se
+repite el procedimiento SAMPLES_COUNTER veces (configurado en 100) y una vez que se
+llega a dicha cantidad, se devuelve un booleano b_done = True que termina la 
+update de la app.
+
+TEST 2
+Funciona de la misma forma que el test anterior pero se realiza un promedio de a 
+AVERAGER_SIZE (16) muestras, es decir: se toman 16 valores consecutivos de lecturas, 
+se promedian y recien ahi se muestran por pantalla.
+
+TEST 3
+Cuando se configura este test, se setea la prioridad de la interrupción para la ADC
+y luego permite dichas interrupciones. En el documento se configura 
+HAL_ADC_ConvCpltCallback (ya definida en el manejo de interrupciones pero sin usar)
+que lo que hace es guardar los valores leidos en un vector. Luego de que b_done sea
+True, se imprime por pantalla.

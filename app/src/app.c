@@ -15,7 +15,7 @@
 #define TEST_2 (2)
 #define TEST_3 (3)
 
-#define TEST_NUMBER TEST_1 //TEST_1, TEST_2, TEST_3
+#define TEST_NUMBER TEST_3 //TEST_1, TEST_2, TEST_3
 
 #define SAMPLES_COUNTER (100)
 #define AVERAGER_SIZE (16)
